@@ -64,7 +64,7 @@
     .field input[type=text],.field select{display:block;width:100%;min-width:0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-size:16px;line-height:1.3;-webkit-appearance:none;appearance:none;box-shadow:none}.select{position:relative}.select select{padding-right:38px}.select::after{content:"";position:absolute;right:15px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}.group-label{font-size:14px;font-weight:700;color:#3d4a60}
         .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
     .opts label{display:inline-flex;white-space:nowrap;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-weight:500;font-size:15px;cursor:pointer;line-height:1.2}.opts input[type=checkbox]{width:18px;height:18px;margin:0;padding:0;flex:none;accent-color:var(--brand)}.opts label:has(input:checked){border-color:var(--brand);background:var(--soft);color:var(--brand)}
-    .note{font-size:13px;color:var(--muted);margin:0}
+    .note{font-size:13px;color:var(--muted);margin:0}.fallback{background:var(--soft);border:1px solid #c9d7ff;border-radius:12px;padding:14px;display:grid;gap:10px}.fallback[hidden]{display:none}.fallback p{margin:0;font-size:14px}.fallback textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font:inherit;font-size:14px;resize:vertical;background:#fff;color:var(--ink)}
     .mail{font-weight:700;white-space:nowrap}
     footer{padding:28px 0 40px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
     footer .wrap{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
@@ -162,6 +162,7 @@
             <div class="select"><select id="pain"><option value="">Elige una opción</option><option>Presupuestos sin seguimiento</option><option>Avisos que se pierden en el WhatsApp</option><option>No saber qué está pendiente</option><option>Urgencias que se acumulan</option><option>Pedir los datos al cliente dos veces</option></select></div></div>
           <div class="field"><label for="when">¿Cuándo te va bien hablar?</label><input id="when" type="text" placeholder="Ej. tardes a partir de las 18:00"></div>
           <button class="btn primary" type="button" id="sendBtn">Escribir el correo</button>
+          <div id="fallback" class="fallback" hidden><p><b>¿No se ha abierto tu correo?</b> Copia este mensaje y envíalo a <b>mlopezinvestment@gmail.com</b> desde tu correo.</p><textarea id="msg" readonly rows="8"></textarea><button class="btn ghost" type="button" id="copyBtn">Copiar mensaje</button></div>
           <p class="note">¿No se abre tu correo? Escríbeme a<br><span class="mail">mlopezinvestment@gmail.com</span>.</p>
           <p class="note">Esta web no guarda ningún dato. Lo que me escribas lo usaré solo para responderte (<a href="privacidad.html">privacidad</a>).</p>
         </form>
@@ -194,7 +195,15 @@
           "Gracias."
         ];
         const subject = "Prueba gratuita PymesFlow" + (val("biz") ? " · " + val("biz") : "");
-        window.location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(lines.join("\n"));
+        const text = lines.join("\n");
+        document.getElementById("msg").value = "Asunto: " + subject + "\n\n" + text;
+        document.getElementById("fallback").hidden = false;
+        window.location.href = "mailto:" + EMAIL + "?subject=" + encodeURIComponent(subject) + "&body=" + encodeURIComponent(text);
+      });
+      document.getElementById("copyBtn").addEventListener("click", async (e) => {
+        const ta = document.getElementById("msg");
+        try { await navigator.clipboard.writeText(ta.value); } catch (_) { ta.select(); document.execCommand("copy"); }
+        e.target.textContent = "Copiado ✓";
       });
     })();
   </script>
