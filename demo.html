@@ -44,7 +44,7 @@
       <article class="metric"><div class="label">Presupuestos abiertos</div><div class="value" id="quoteMetric">0 €</div><div class="hint">enviados y aceptados</div></article>
     </section>
     <div class="toolbar">
-      <div><strong>Panel de trabajos</strong><div style="color:var(--muted);font-size:12px">Por atender → Presupuesto → Trabajo en marcha</div></div>
+      <div><strong>Panel de trabajos</strong><div style="color:var(--muted);font-size:12px">Nuevo → Presupuesto enviado → Aceptado → Terminado</div></div>
       <div class="filters"><input id="search" type="search" placeholder="Buscar cliente o servicio" aria-label="Buscar"><select id="urgencyFilter" aria-label="Filtrar urgencia"><option value="all">Todas las urgencias</option><option value="urgent">Urgentes</option><option value="today">Hoy</option><option value="week">Esta semana</option><option value="none">Sin prisa</option></select><select id="overdueFilter" aria-label="Filtrar vencidos"><option value="all">Todos</option><option value="overdue">Solo vencidos</option><option value="noaction">Sin próxima acción</option></select><select id="viewFilter" aria-label="Vista"><option value="open">Solo abiertos</option><option value="all">Incluir cerrados</option></select></div>
     </div>
     <section id="board" class="board" aria-label="Pipeline"></section>
@@ -78,10 +78,12 @@
       const STORAGE_KEY = "pymesflow-demo-v2";
       const LEGACY_KEY = "pymesflow-demo-v1";
       const SETTINGS_KEY = "pymesflow-demo-settings";
-      const statuses = ["Nuevo", "Contactado", "Visita pendiente", "Presupuesto enviado", "Aceptado", "En curso", "Terminado", "Perdido"];
+      const statuses = ["Nuevo", "Presupuesto enviado", "Aceptado", "Terminado", "Perdido"];
+      const legacyStatus = {"Contactado": "Nuevo", "Visita pendiente": "Nuevo", "En curso": "Aceptado"};
       const closedStatuses = ["Terminado", "Perdido"];
-      const groups = [{name: "Por atender", statuses: ["Nuevo", "Contactado"]}, {name: "Presupuesto", statuses: ["Visita pendiente", "Presupuesto enviado"]}, {name: "Trabajo en marcha", statuses: ["Aceptado", "En curso"]}, {name: "Cerrado", statuses: ["Terminado", "Perdido"]}];
-      const nextStatus = {"Nuevo":"Contactado", "Contactado":"Visita pendiente", "Visita pendiente":"Presupuesto enviado", "Presupuesto enviado":"Aceptado", "Aceptado":"En curso", "En curso":"Terminado"};
+      const groups = [{name: "Nuevos", statuses: ["Nuevo"]}, {name: "Presupuesto enviado", statuses: ["Presupuesto enviado"]}, {name: "Aceptados", statuses: ["Aceptado"]}, {name: "Cerrados", statuses: ["Terminado", "Perdido"]}];
+      const nextStatus = {"Nuevo":"Presupuesto enviado", "Presupuesto enviado":"Aceptado", "Aceptado":"Terminado"};
+      const nextLabel = {"Presupuesto enviado":"Presupuesto enviado →", "Aceptado":"Lo ha aceptado →", "Terminado":"Trabajo terminado ✓"};
       const defaultSettings = {name: "PymesFlow", contact: "Avisos y presupuestos sin perder seguimiento", owners: "Responsable, Técnico 1"};
       const pad = (n) => String(n).padStart(2, "0");
       const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
@@ -106,10 +108,10 @@
       const money = (n) => new Intl.NumberFormat("es-ES", {style:"currency", currency:"EUR", maximumFractionDigits:0}).format(Number(n || 0));
       const dateLabel = (s) => { if (!s) return "sin fecha"; const d = new Date(`${s}T12:00:00`); return d.toLocaleDateString("es-ES", {day:"2-digit", month:"short"}); };
       const esc = (s) => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]));
-      const normalize = (x) => ({channel: "Llamada", nextAction: "", owner: "Responsable", followUp: "", amount: 0, ...x, created: x.created || x.updated || dateAt(0)});
+      const normalize = (x) => ({channel: "Llamada", nextAction: "", owner: "Responsable", followUp: "", amount: 0, ...x, status: legacyStatus[x.status] || x.status, created: x.created || x.updated || dateAt(0)});
       function readJSON(key) { try { return JSON.parse(localStorage.getItem(key)); } catch (_) { return null; } }
       function writeJSON(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (_) {} }
-      function load() { const value = readJSON(STORAGE_KEY) ?? readJSON(LEGACY_KEY); return Array.isArray(value) ? value.map(normalize) : seed(); }
+      function load() { const value = readJSON(STORAGE_KEY) ?? readJSON(LEGACY_KEY); return Array.isArray(value) ? value.map(normalize) : seed().map(normalize); }
       function save() { writeJSON(STORAGE_KEY, items); }
       let items = load();
       let settings = {...defaultSettings, ...(readJSON(SETTINGS_KEY) || {})};
@@ -130,7 +132,7 @@
         const filtered = filterItems(); const open = items.filter(isOpen);
         const quotes = open.filter(x => ["Presupuesto enviado", "Aceptado"].includes(x.status)).reduce((a,x) => a + Number(x.amount || 0), 0);
         $("openMetric").textContent = open.length; $("urgentMetric").textContent = open.filter(x => x.urgency === "urgent").length; $("overdueMetric").textContent = items.filter(isOverdue).length; $("noActionMetric").textContent = items.filter(lacksAction).length; $("quoteMetric").textContent = money(quotes);
-        const columns = $("viewFilter").value === "all" ? groups : groups.filter(g => g.name !== "Cerrado");
+        const columns = $("viewFilter").value === "all" ? groups : groups.filter(g => g.name !== "Cerrados");
         $("board").style.setProperty("--cols", columns.length);
         $("board").innerHTML = columns.map(col => { const group = filtered.filter(x => col.statuses.includes(x.status)).sort((a, b) => col.statuses.indexOf(a.status) - col.statuses.indexOf(b.status)); return `<div class="column"><h2>${col.name}<span>${group.length}</span></h2><div class="stack">${group.length ? group.map(card).join("") : '<div class="empty">Nada por aquí</div>'}</div></div>`; }).join("");
         $("remindersBtn").textContent = `Recordatorios (${open.filter(x => isOverdue(x) || isDueToday(x)).length})`;
@@ -139,10 +141,10 @@
         const next = nextStatus[item.status]; const open = isOpen(item);
         const urgencyClass = item.urgency === "urgent" ? "urgent" : item.urgency === "today" ? "today" : "";
         const followClass = isOverdue(item) ? "urgent" : isDueToday(item) ? "today" : "";
-        const followText = isOverdue(item) ? `Vencido: ${dateLabel(item.followUp)}` : isDueToday(item) ? "Seguimiento: hoy" : `Seguimiento: ${dateLabel(item.followUp)}`;
-        const statusBadge = `<span class="badge status${item.status === "Terminado" ? " ok" : ""}">${esc(item.status)}</span>`;
+        const followText = isOverdue(item) ? `Vencido: ${dateLabel(item.followUp)}` : isDueToday(item) ? "Llamar hoy" : `Seguimiento: ${dateLabel(item.followUp)}`;
+        const statusBadge = open ? "" : `<span class="badge${item.status === "Terminado" ? " ok" : ""}">${esc(item.status)}</span>`;
         const action = !open ? "" : lacksAction(item) ? `<div class="next-action missing"><b>Sin próxima acción</b> · ${esc(item.owner)}</div>` : `<div class="next-action"><b>Próxima acción:</b> ${esc(item.nextAction)} · <b>${esc(item.owner)}</b></div>`;
-        return `<article class="card${open ? "" : " closed"}"><div class="title">${esc(item.client)}</div><div class="meta"><span>${esc(item.service)}</span><span>·</span><span>${esc(item.address)}</span></div><p class="description">${esc(item.description)}</p>${action}<div class="badges">${statusBadge}<span class="badge ${urgencyClass}">${esc(urgencyLabel(item.urgency))}</span>${open ? `<span class="badge ${followClass}">${esc(followText)}</span>` : ""}<span class="badge">${esc(item.channel)}</span>${item.amount ? `<span class="badge">${money(item.amount)}</span>` : ""}</div><div class="card-actions">${open && next ? `<button class="ghost" data-next="${esc(next)}" data-id="${esc(item.id)}">→ ${esc(next)}</button>` : ""}${open ? `<button class="ghost" data-follow data-id="${esc(item.id)}">+1 día</button>` : ""}<button class="ghost" data-edit data-id="${esc(item.id)}">Editar</button></div></article>`;
+        return `<article class="card${open ? "" : " closed"}"><div class="title">${esc(item.client)}</div><div class="meta"><span>${esc(item.service)}</span><span>·</span><span>${esc(item.address)}</span></div><p class="description">${esc(item.description)}</p>${action}<div class="badges">${statusBadge}${urgencyClass ? `<span class="badge ${urgencyClass}">${esc(urgencyLabel(item.urgency))}</span>` : ""}${open && item.followUp ? `<span class="badge ${followClass}">${esc(followText)}</span>` : ""}${item.amount ? `<span class="badge">${money(item.amount)}</span>` : ""}</div><div class="card-actions">${open && next ? `<button class="primary" data-next="${esc(next)}" data-id="${esc(item.id)}">${esc(nextLabel[next])}</button>` : ""}<button class="ghost" data-edit data-id="${esc(item.id)}">Editar</button></div></article>`;
       }
       function update(id, changes) { const item = items.find(x => x.id === id); if (!item) return; Object.assign(item, changes, {updated: dateAt(0)}); save(); render(); }
       function move(id, status) {
@@ -238,7 +240,7 @@
       document.addEventListener("keydown", e => { if (e.key === "Escape") closeModals(); });
       $("newBtn").addEventListener("click", () => openItem(null));
       ["search", "urgencyFilter", "overdueFilter", "viewFilter"].forEach(id => $(id).addEventListener("input", render));
-      $("resetBtn").addEventListener("click", () => { if (confirm("¿Restablecer los datos ficticios?")) { items = seed(); save(); render(); } });
+      $("resetBtn").addEventListener("click", () => { if (confirm("¿Restablecer los datos ficticios?")) { items = seed().map(normalize); save(); render(); } });
       applySettings();
       render();
     })();
