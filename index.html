@@ -60,11 +60,10 @@
     .avatar{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:99px;background:var(--brand);color:#fff;font-weight:800;font-size:20px}
     form{display:grid;gap:14px}
     .field{display:grid;gap:6px}
-    .field label,.field legend{font-size:14px;font-weight:700;color:#3d4a60}
-    .field input,.field select{width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit}
-    fieldset{border:0;padding:0;margin:0}
-    .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-    .opts label{display:flex;white-space:nowrap;gap:6px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:6px 12px;font-weight:500;font-size:14px;cursor:pointer}
+    .field>label{font-size:14px;font-weight:700;color:#3d4a60}
+    .field input[type=text],.field select{display:block;width:100%;min-width:0;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink);font:inherit;font-size:16px;line-height:1.3;-webkit-appearance:none;appearance:none;box-shadow:none}.select{position:relative}.select select{padding-right:38px}.select::after{content:"";position:absolute;right:15px;top:50%;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}.group-label{font-size:14px;font-weight:700;color:#3d4a60}
+        .opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+    .opts label{display:inline-flex;white-space:nowrap;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:99px;padding:8px 14px;font-weight:500;font-size:15px;cursor:pointer;line-height:1.2}.opts input[type=checkbox]{width:18px;height:18px;margin:0;padding:0;flex:none;accent-color:var(--brand)}.opts label:has(input:checked){border-color:var(--brand);background:var(--soft);color:var(--brand)}
     .note{font-size:13px;color:var(--muted);margin:0}
     .mail{font-weight:700;white-space:nowrap}
     footer{padding:28px 0 40px;color:var(--muted);font-size:14px;border-top:1px solid var(--line)}
@@ -154,16 +153,16 @@
         <h3 style="margin-bottom:4px">Pedir la prueba</h3>
         <p class="note" style="margin-bottom:16px">Rellena lo que quieras y pulsa el botón. Se abrirá tu correo con un mensaje ya escrito; solo tienes que enviarlo.</p>
         <form id="leadForm" novalidate>
-          <div class="field"><label for="biz">Nombre del negocio</label><input id="biz" autocomplete="organization" placeholder="Ej. Persianas Ejemplo"></div>
+          <div class="field"><label for="biz">Nombre del negocio</label><input id="biz" type="text" autocomplete="organization" placeholder="Ej. Persianas Ejemplo"></div>
           <div class="field"><label for="type">¿A qué te dedicas?</label>
-            <select id="type"><option value="">Elige una opción</option><option>Persianas y reparaciones</option><option>Fontanería / desatascos</option><option>Electricidad</option><option>Instalaciones / climatización</option><option>Multiservicios</option><option>Taller / mantenimiento</option><option>Otro</option></select></div>
-          <fieldset class="field"><legend>¿Cómo te llegan los avisos?</legend>
-            <div class="opts"><label><input type="checkbox" name="ch" value="Teléfono"> Teléfono</label><label><input type="checkbox" name="ch" value="WhatsApp"> WhatsApp</label><label><input type="checkbox" name="ch" value="Correo"> Correo</label><label><input type="checkbox" name="ch" value="Web"> Web</label><label><input type="checkbox" name="ch" value="En persona"> En persona</label></div></fieldset>
+            <div class="select"><select id="type"><option value="">Elige una opción</option><option>Persianas y reparaciones</option><option>Fontanería / desatascos</option><option>Electricidad</option><option>Instalaciones / climatización</option><option>Multiservicios</option><option>Taller / mantenimiento</option><option>Otro</option></select></div></div>
+          <div class="field" role="group" aria-labelledby="chLabel"><span class="group-label" id="chLabel">¿Cómo te llegan los avisos?</span>
+            <div class="opts"><label><input type="checkbox" name="ch" value="Teléfono"> Teléfono</label><label><input type="checkbox" name="ch" value="WhatsApp"> WhatsApp</label><label><input type="checkbox" name="ch" value="Correo"> Correo</label><label><input type="checkbox" name="ch" value="Web"> Web</label><label><input type="checkbox" name="ch" value="En persona"> En persona</label></div></div>
           <div class="field"><label for="pain">¿Qué es lo que más se te escapa?</label>
-            <select id="pain"><option value="">Elige una opción</option><option>Presupuestos sin seguimiento</option><option>Avisos que se pierden en el WhatsApp</option><option>No saber qué está pendiente</option><option>Urgencias que se acumulan</option><option>Pedir los datos al cliente dos veces</option></select></div>
-          <div class="field"><label for="when">¿Cuándo te va bien hablar?</label><input id="when" placeholder="Ej. tardes a partir de las 18:00"></div>
+            <div class="select"><select id="pain"><option value="">Elige una opción</option><option>Presupuestos sin seguimiento</option><option>Avisos que se pierden en el WhatsApp</option><option>No saber qué está pendiente</option><option>Urgencias que se acumulan</option><option>Pedir los datos al cliente dos veces</option></select></div></div>
+          <div class="field"><label for="when">¿Cuándo te va bien hablar?</label><input id="when" type="text" placeholder="Ej. tardes a partir de las 18:00"></div>
           <button class="btn primary" type="button" id="sendBtn">Escribir el correo</button>
-          <p class="note">¿No se abre tu correo? Escríbeme a <span class="mail">mlopezinvestment@gmail.com</span>.</p>
+          <p class="note">¿No se abre tu correo? Escríbeme a<br><span class="mail">mlopezinvestment@gmail.com</span>.</p>
           <p class="note">Esta web no guarda ningún dato. Lo que me escribas lo usaré solo para responderte (<a href="privacidad.html">privacidad</a>).</p>
         </form>
       </div>
