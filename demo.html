@@ -7,6 +7,11 @@
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'; img-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; font-src 'none'; object-src 'none'">
   <meta http-equiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=(), payment=(), usb=()">
   <title>PymesFlow · Demo</title>
+  <meta name="description" content="Demo con datos ficticios: avisos y presupuestos con responsable, próxima acción y recordatorios.">
+  <meta property="og:title" content="PymesFlow · Demo">
+  <meta property="og:description" content="Así se ve el panel: cada aviso con responsable, próxima acción y recordatorio. Datos ficticios.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://valkyaha.github.io/pymes-flow-demo/demo.html">
   <style>
     :root{--bg:#f4f7fb;--panel:#fff;--ink:#172033;--muted:#657087;--line:#dfe6ef;--brand:#2457d6;--brand-dark:#173b98;--red:#b42318;--amber:#9a6700;--green:#087443;--shadow:0 10px 30px rgba(23,32,51,.08)}
     *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
@@ -19,7 +24,7 @@
     .empty{border:1px dashed #cbd5e1;border-radius:12px;padding:18px;color:var(--muted);font-size:13px;text-align:center;background:rgba(255,255,255,.5)}
     .modal-backdrop{position:fixed;inset:0;background:rgba(14,25,47,.48);display:none;align-items:center;justify-content:center;padding:16px;z-index:5}.modal-backdrop.open{display:flex}.modal{background:#fff;border-radius:16px;width:min(640px,100%);max-height:90vh;overflow:auto;box-shadow:0 25px 80px rgba(0,0,0,.25)}.modal header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}.modal header h2{font-size:18px;margin:0}.modal form,.modal .body{padding:20px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.field{display:grid;gap:5px}.field.full{grid-column:1/-1}.field label{font-size:12px;font-weight:700;color:#4d5a70}.field input,.field select,.field textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;background:white;color:var(--ink)}.field textarea{min-height:86px;resize:vertical}.field small{color:var(--muted);font-size:12px}.form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;flex-wrap:wrap}.form-actions .spacer{flex:1}
     .email{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;overflow:hidden}.email .head{background:#f6f8fb;padding:10px 12px;font-size:13px;color:#4d5a70;border-bottom:1px solid var(--line)}.email .head b{color:var(--ink)}.email .content{padding:12px;font-size:14px}.email ul{margin:6px 0;padding-left:20px}.email table{border-collapse:collapse;width:100%;font-size:13px;margin-top:8px}.email td{border-top:1px solid var(--line);padding:5px 4px}.email td:last-child{text-align:right;font-weight:700}.explain{font-size:13px;color:var(--muted);margin:0 0 14px}
-    .footer{margin:20px 0 4px;color:var(--muted);font-size:12px;text-align:center}.footer a{color:var(--muted)}.notice a{color:#173b98;font-weight:700}.hidden{display:none!important}
+    .footer{margin:20px 0 4px;color:var(--muted);font-size:12px;text-align:center}.footer a{color:var(--muted)}.presenter{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:22px}.presenter button{font-size:13px;padding:8px 12px}.tour{margin:6px 0 8px;padding-left:20px}.tour li{margin:3px 0}.tour .badge{font-size:11px}.notice a{color:#173b98;font-weight:700}.hidden{display:none!important}
     @media(max-width:900px){.metrics{grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.actions{justify-content:flex-start}}
     @media(max-width:600px){.app{padding:14px}.metrics{gap:8px}.metric{padding:12px}.metric .value{font-size:23px}.board{grid-auto-flow:row;grid-template-columns:1fr;overflow:visible}.grid{grid-template-columns:1fr}.field.full{grid-column:auto}.toolbar{align-items:stretch}.filters>*{width:100%}.filters{width:100%}.actions{width:100%}.actions button{flex:1 1 45%}}
   </style>
@@ -28,9 +33,9 @@
   <main class="app">
     <header class="topbar">
       <div class="brand"><div class="mark" id="brandMark">PF</div><div><h1 id="brandName">PymesFlow</h1><p id="brandTag">Avisos y presupuestos sin perder seguimiento</p></div></div>
-      <div class="actions"><button class="ghost" id="remindersBtn" type="button">Recordatorios</button><button class="ghost" id="summaryBtn" type="button">Resumen semanal</button><button class="ghost" id="settingsBtn" type="button">Personalizar</button><button class="ghost" id="resetBtn" type="button">Restablecer demo</button><button class="primary" id="newBtn" type="button">+ Nuevo aviso</button></div>
+      <div class="actions"><button class="ghost" id="remindersBtn" type="button">Recordatorios</button><button class="ghost" id="summaryBtn" type="button">Resumen semanal</button><button class="primary" id="newBtn" type="button">+ Nuevo aviso</button></div>
     </header>
-    <section class="notice"><strong>Demo comercial · datos ficticios</strong>Este panel enseña el flujo. En un piloto real, los datos viven en la cuenta del cliente. <a href="index.html#prueba">¿Te interesa? Pide una prueba gratuita de 7 días →</a></section>
+    <section class="notice"><strong>Pruébala en 1 minuto · datos ficticios</strong><ol class="tour"><li>Las tarjetas marcadas <span class="badge urgent">Vencido</span> son seguimientos que se han pasado de fecha.</li><li>Pulsa <b>Recordatorios</b>: es el correo que recibiría cada responsable.</li><li>Pulsa <b>+ Nuevo aviso</b> y apunta uno inventado: verás cómo entra en el panel.</li></ol>En un piloto real, todo vive en tu propia cuenta de Google. <a href="index.html#prueba">¿Te interesa? Pide una prueba gratuita de 7 días →</a></section>
     <section class="metrics" aria-label="Resumen">
       <article class="metric"><div class="label">Avisos abiertos</div><div class="value" id="openMetric">0</div><div class="hint">no terminados ni perdidos</div></article>
       <article class="metric"><div class="label">Urgentes abiertos</div><div class="value" id="urgentMetric">0</div><div class="hint">requieren atención</div></article>
@@ -43,6 +48,7 @@
       <div class="filters"><input id="search" type="search" placeholder="Buscar cliente o servicio" aria-label="Buscar"><select id="urgencyFilter" aria-label="Filtrar urgencia"><option value="all">Todas las urgencias</option><option value="urgent">Urgentes</option><option value="today">Hoy</option><option value="week">Esta semana</option><option value="none">Sin prisa</option></select><select id="overdueFilter" aria-label="Filtrar vencidos"><option value="all">Todos</option><option value="overdue">Solo vencidos</option><option value="noaction">Sin próxima acción</option></select><select id="viewFilter" aria-label="Vista"><option value="open">Solo abiertos</option><option value="all">Incluir cerrados</option></select></div>
     </div>
     <section id="board" class="board" aria-label="Pipeline"></section>
+    <div class="presenter"><button class="ghost" id="settingsBtn" type="button">Personalizar</button><button class="ghost" id="resetBtn" type="button">Restablecer demo</button></div>
     <p class="footer"><a href="index.html">PymesFlow</a> · proyecto en fase de prueba · <a href="index.html#prueba">Prueba gratuita</a> · <a href="privacidad.html">Aviso legal y privacidad</a></p>
   </main>
 
