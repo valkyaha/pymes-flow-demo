@@ -144,7 +144,7 @@
         const followText = isOverdue(item) ? `Vencido: ${dateLabel(item.followUp)}` : isDueToday(item) ? "Llamar hoy" : `Seguimiento: ${dateLabel(item.followUp)}`;
         const statusBadge = open ? "" : `<span class="badge${item.status === "Terminado" ? " ok" : ""}">${esc(item.status)}</span>`;
         const action = !open ? "" : lacksAction(item) ? `<div class="next-action missing"><b>Sin próxima acción</b> · ${esc(item.owner)}</div>` : `<div class="next-action"><b>Próxima acción:</b> ${esc(item.nextAction)} · <b>${esc(item.owner)}</b></div>`;
-        return `<article class="card${open ? "" : " closed"}"><div class="title">${esc(item.client)}</div><div class="meta"><span>${esc(item.service)}</span><span>·</span><span>${esc(item.address)}</span></div><p class="description">${esc(item.description)}</p>${action}<div class="badges">${statusBadge}${urgencyClass ? `<span class="badge ${urgencyClass}">${esc(urgencyLabel(item.urgency))}</span>` : ""}${open && item.followUp ? `<span class="badge ${followClass}">${esc(followText)}</span>` : ""}${item.amount ? `<span class="badge">${money(item.amount)}</span>` : ""}</div><div class="card-actions">${open && next ? `<button class="primary" data-next="${esc(next)}" data-id="${esc(item.id)}">${esc(nextLabel[next])}</button>` : ""}<button class="ghost" data-edit data-id="${esc(item.id)}">Editar</button></div></article>`;
+        return `<article class="card${open ? "" : " closed"}"><div class="title">${esc(item.client)}</div><div class="meta"><span>${esc(item.service)}</span><span>·</span><span>${esc(item.address)}</span></div><p class="description">${esc(item.description)}</p>${action}<div class="badges">${statusBadge}${urgencyClass ? `<span class="badge ${urgencyClass}">${esc(urgencyLabel(item.urgency))}</span>` : ""}${open && item.followUp ? `<span class="badge ${followClass}">${esc(followText)}</span>` : ""}${item.amount ? `<span class="badge">${money(item.amount)}</span>` : ""}</div><div class="card-actions">${open && next ? `<button class="primary" data-next="${esc(next)}" data-id="${esc(item.id)}">${esc(nextLabel[next])}</button>` : ""}${item.status === "Presupuesto enviado" ? `<button class="danger" data-lost data-id="${esc(item.id)}">No lo acepta</button>` : ""}<button class="ghost" data-edit data-id="${esc(item.id)}">Editar</button></div></article>`;
       }
       function update(id, changes) { const item = items.find(x => x.id === id); if (!item) return; Object.assign(item, changes, {updated: dateAt(0)}); save(); render(); }
       function move(id, status) {
@@ -165,6 +165,7 @@
       $("board").addEventListener("click", e => {
         const btn = e.target.closest("button[data-id]"); if (!btn) return;
         if (btn.dataset.next) move(btn.dataset.id, btn.dataset.next);
+        if (btn.hasAttribute("data-lost")) update(btn.dataset.id, {status: "Perdido", nextAction: ""});
         else if ("follow" in btn.dataset) follow(btn.dataset.id);
         else if ("edit" in btn.dataset) openItem(items.find(x => x.id === btn.dataset.id));
       });
